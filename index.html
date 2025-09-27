@@ -1,0 +1,1800 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Студсовет — поощрения (demo)</title>
+<style>
+:root{
+  --bg:#f7f7f8;
+  --panel:#f0f2f5;
+  --card:#ffffff;
+  --text:#24303a;
+  --muted:#6b7a85;
+  --accent:#3E5F8A; /* light theme accent requested */
+  --accent-contrast:#ffffff;
+  --glass: rgba(0,0,0,0.03);
+  --success:#10b981;
+  --danger:#ef4444;
+  --radius:12px;
+  --btn-border: rgba(0,0,0,0.08);
+  --card-border: rgba(0,0,0,0.06);
+  --input-border: rgba(0,0,0,0.06);
+  --avatar-border-width: 3px;
+  --avatar-border-color: rgba(0,0,0,0.08);
+  --logo-border-width: 2px;
+  --logo-border-color: rgba(0,0,0,0.06);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter,system-ui,Arial,sans-serif;
+  background: linear-gradient(180deg,var(--bg) 0%, var(--bg) 60%);
+  color: var(--text);
+  min-height:100vh;
+  padding:22px;
+  transition: background .25s ease, color .25s ease;
+}
+.wrap{max-width:1150px;margin:0 auto}
+.header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.logo{
+  width:56px;height:56px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),#60a5fa);
+  display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--accent-contrast);font-size:20px;
+  box-shadow:0 8px 30px rgba(62,95,138,0.12);
+  overflow:hidden;border:var(--logo-border-width) solid var(--logo-border-color);
+}
+.logo img{width:100%;height:100%;object-fit:cover;border-radius:8px;display:block}
+.hmeta .title{font-size:20px;font-weight:700}
+.hmeta .subtitle{color:var(--muted);font-size:13px}
+.layout{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}
+@media(max-width:980px){.layout{grid-template-columns:1fr}}
+.side{background:var(--panel);padding:18px;border-radius:var(--radius);box-shadow: 0 6px 18px rgba(0,0,0,0.04);min-height:320px}
+.card{background: var(--card);border-radius:12px;padding:14px;margin-bottom:14px;border:1px solid var(--card-border)}
+.small{font-size:13px;color:var(--muted)}
+.muted{color:var(--muted)}
+.input{width:100%;padding:10px;border-radius:10px;border:1px solid var(--input-border);background:transparent;color:var(--text);margin-top:8px;caret-color:var(--accent);-webkit-text-fill-color:var(--text)}
+.input::placeholder{color:rgba(0,0,0,0.35)}
+select.input{appearance:none;-webkit-appearance:none;background-clip:padding-box}
+.btn{background:var(--accent);color:var(--accent-contrast);border:none;padding:10px 12px;border-radius:10px;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(62,95,138,0.08);border:1px solid transparent}
+.btn.ghost{background:transparent;border:1px solid var(--btn-border);color:var(--muted);box-shadow:none}
+.btn.small{padding:6px 10px;font-size:13px}
+.userrow{display:flex;gap:12px;align-items:center}
+.avatar{width:72px;height:72px;border-radius:12px;object-fit:cover;border:var(--avatar-border-width) solid var(--avatar-border-color);box-shadow:0 6px 14px rgba(0,0,0,0.04)}
+.task{border-radius:10px;padding:12px;background:transparent;border:1px solid var(--card-border);margin-bottom:10px}
+.table{width:100%;border-collapse:collapse;font-size:14px}
+.table th{color:var(--muted);text-align:left;padding:8px 6px;font-size:13px;border-bottom:1px dashed var(--card-border)}
+.table td{padding:8px 6px;border-bottom:1px dashed var(--card-border)}
+.center{text-align:center}
+.hidden{display:none!important}
+.footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+.badge{background:rgba(0,0,0,0.03);padding:6px 8px;border-radius:8px;font-size:12px;color:var(--muted)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.small-note{font-size:12px;color:var(--muted);margin-top:6px}
+.header-controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+.switch{display:inline-flex;align-items:center;gap:8px}
+.news-item{border-left:4px solid rgba(62,95,138,0.08);padding-left:10px;margin-bottom:8px}
+.poll-option{display:flex;justify-content:space-between;align-items:center;padding:8px 6px;border-radius:8px;border:1px solid var(--card-border);margin-bottom:6px}
+.chat-list{max-height:240px;overflow:auto}
+.chat-box{max-height:240px;overflow:auto;padding:8px;border-radius:8px;border:1px solid var(--card-border);background:transparent}
+.msg{padding:8px;border-radius:8px;margin-bottom:6px;max-width:80%}
+.msg.user{background:rgba(62,95,138,0.08);margin-left:auto}
+.msg.admin{background:rgba(0,0,0,0.04)}
+.small-muted{font-size:12px;color:var(--muted)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:28px;background:rgba(0,0,0,0.75);color:#fff;padding:10px 14px;border-radius:10px;z-index:9999;display:none;box-shadow:0 6px 20px rgba(0,0,0,0.12)}
+/* make borders/buttons more visible to reduce eye strain */
+.btn, .input, .task{border-width:1px}
+body.dark{
+  --bg: #071229;
+  --panel: #0b2030;
+  --card: #0e2a3d;
+  --text: #e6f2ff;
+  --muted: #9fb2c9;
+  --accent-contrast: #021022;
+  --btn-border: rgba(255,255,255,0.08);
+  --card-border: rgba(255,255,255,0.04);
+  --input-border: rgba(255,255,255,0.06);
+  --avatar-border-color: rgba(255,255,255,0.12);
+  --logo-border-color: rgba(255,255,255,0.06);
+  --accent: #2f7bff;
+  background: linear-gradient(180deg,var(--bg) 0%, var(--bg) 60%);
+}
+select.input{background-color: transparent; color: var(--text); border-radius:8px; padding-right:18px;}
+.owner-only { display:none; }
+/* ensure admin reply visible */
+#admin-reply{min-width:120px;flex:1;background:transparent;color:var(--text);caret-color:var(--accent);-webkit-text-fill-color:var(--text)}
+#admin-reply::placeholder{color:rgba(0,0,0,0.35)}
+#admin-reply:focus{outline:2px solid rgba(62,95,138,0.12)}
+/* mobile */
+
+@media(max-width:720px){
+  /* show hamburger */
+  #btn-hamburger{ display:inline-flex; align-items:center; justify-content:center; }
+  /* side as slide-in drawer when opened, but visible in normal flow by default */
+  .side{ position:relative; left:0; top:auto; bottom:auto; width:100%; max-width:none; padding:18px; margin:0 0 14px 0; border-radius:var(--radius); box-shadow:none; transition:left .25s ease, box-shadow .25s ease; z-index:1; }
+  /* when side-open class is active, make it a fixed drawer above content */
+  body.side-open .side{ position:fixed; left:0; top:0; bottom:0; width:320px; max-width:80vw; padding:18px; margin:0; border-radius:0; box-shadow: 8px 0 30px rgba(0,0,0,0.25); z-index:50; transition:left .25s ease; }
+  /* push main area slightly (optional) */
+  body.side-open .layout main{ transform: translateX(0); }
+  /* ensure main content full width normally */
+  .layout{ grid-template-columns: 1fr; }
+  /* ensure side is displayed in normal flow */
+  .side{ display:block; }
+  /* move header-controls to top row; hamburger visible */
+  .header-controls{ margin-left:0; }
+}
+
+
+/* === Mobile / touch improvements (added by Gip) === */
+/* Better tap targets and readability on small screens */
+.btn{ -webkit-tap-highlight-color: rgba(0,0,0,0.06); touch-action: manipulation; }
+.input, textarea.input { -webkit-tap-highlight-color: rgba(0,0,0,0.03); touch-action: manipulation; }
+
+/* Improve scrolling for touch devices */
+.chat-list, .chat-box, #admin-chat-box, #my-chats, #admin-chats-list, .side, main { -webkit-overflow-scrolling: touch; }
+
+/* Larger tappable areas on small screens */
+@media(max-width:720px){
+  .btn{ padding:12px 14px; font-size:15px; border-radius:12px; }
+  .btn.small{ padding:10px 12px; font-size:15px; }
+  .input{ padding:12px; font-size:16px; border-radius:12px; }
+  .task{ padding:12px; }
+  .avatar{ width:64px; height:64px; }
+  .header{ align-items:center; }
+  .header-controls{ width:100%; order:3; display:flex; justify-content:space-between; margin-top:8px; }
+  .header .hmeta{ flex-basis:100%; }
+  .logo{ width:48px; height:48px; }
+  .layout{ grid-template-columns: 1fr; }
+  .side{ position:relative; z-index:1; }
+  .card{ padding:14px; }
+  .task .btn{ width:100%; box-sizing:border-box; }
+  /* make admin lists easier to tap */
+  #admin-users-list input, #admin-users-list button { min-height:40px; padding:8px; }
+}
+
+/* prevent accidental text selection on tap */
+button, .btn { -webkit-user-select: none; -ms-user-select: none; user-select: none; }
+
+/* slight increase of contrast and spacing for mobile */
+@media (max-width:480px){
+  body{ padding:12px; }
+  .wrap{ padding:0 6px; }
+  .small{ font-size:12px; }
+  .small-muted{ font-size:11px; }
+}
+/* === end mobile tweaks === */
+
+
+/* Mobile hamburger / side panel behavior */
+.overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:40; display:none; transition:opacity .2s ease; }
+.overlay.visible{ display:block; opacity:1; }
+@media(max-width:720px){
+  /* show hamburger */
+  #btn-hamburger{ display:inline-flex; align-items:center; justify-content:center; }
+  /* side as sliding drawer */
+  .side{ position:fixed; left:-320px; top:0; bottom:0; width:320px; max-width:80vw; padding:18px; margin:0; border-radius:0; box-shadow: 8px 0 30px rgba(0,0,0,0.25); z-index:50; transition:left .25s ease; }
+  body.side-open .side{ left:0; }
+  /* push main area slightly (optional) */
+  body.side-open .layout main{ transform: translateX(0); }
+  /* ensure main content full width normally */
+  .layout{ grid-template-columns: 1fr; }
+  /* hide side in normal flow */
+  .side{ display:block; }
+  /* move header-controls to top row; hamburger visible */
+  .header-controls{ margin-left:0; }
+}
+@media(min-width:721px){
+  /* ensure overlay hidden on desktop */
+  #mobile-overlay{ display:none !important; }
+  #btn-hamburger{ display:none !important; }
+}
+
+
+/* === Emergency mobile layout fixes (Gip) === */
+/* Ensure the main wrapper uses full width on small screens */
+@media (max-width:720px) {
+  .wrap{ max-width:100% !important; padding:0 12px !important; }
+  body { min-height:100vh; }
+  /* Make header use available width and stack controls */
+  .header{ align-items:center; justify-content:flex-start; gap:12px; padding-right:12px; }
+  .hmeta{ flex:1 1 auto; min-width:0; }
+  .header-controls{ margin-left:0; display:flex; gap:8px; align-items:center; }
+  /* main area should take full width */
+  main{ width:100% !important; }
+  /* Make sure side is in normal flow and spans full width above main */
+  .side{ width:100% !important; max-width:100% !important; left:0 !important; position:relative !important; box-shadow:none !important; }
+  .layout{ grid-template-columns: 1fr !important; gap:12px; }
+  /* ensure background fill doesn't show large gutters */
+  body, html { height:100%; width:100%; overflow-x:hidden; }
+  /* Make content cards stretch so they don't get compressed */
+  .card, .task { width:100%; box-sizing:border-box; }
+  /* make header logo not shrink layout */
+  .logo{ flex:0 0 auto; }
+  /* ensure buttons visible */
+  .header-controls .btn { display:inline-flex; }
+}
+
+/* Small explicit fix for DevTools device emulation quirks: full viewport meta */
+meta[name="viewport"] { }
+
+</style>
+<!-- Chart.js CDN for dashboard -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="logo" id="logo-el"><span id="logo-fallback" style="font-weight:800;color:var(--accent-contrast)">СС</span></div>
+    <div class="hmeta">
+      <div class="title">МК ПГУПС - Студсовет</div>
+      <div class="subtitle">Локальная демка</div>
+    </div>
+
+    <div class="header-controls">
+      <button id="btn-hamburger" class="btn small ghost" aria-label="Меню" title="Меню (моб.)" style="display:none; padding:8px 10px; font-size:18px">☰</button>
+      <div class="switch">
+        <button id="btn-theme" class="btn small">Тёмная</button>
+      </div>
+      <button id="btn-export-csv" class="btn small hidden" title="Выгрузить CSV">Выгрузить отчёт (CSV)</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- LEFT -->
+    <aside class="side">
+      <!-- LOGIN -->
+      <div id="card-login" class="card">
+        <div class="small">Вход</div>
+        <input id="inp-login" class="input" placeholder="Email или логин">
+        <input id="inp-pass" class="input" type="password" placeholder="Пароль">
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button id="btn-login" class="btn">Войти</button>
+          <button id="btn-show-register" class="btn ghost">Регистрация</button>
+        </div>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="card-register" class="card hidden">
+        <div class="small">Заявка на регистрацию (будет подтверждена админом)</div>
+        <input id="reg-fio" class="input" placeholder="ФИО">
+        <input id="reg-email" class="input" placeholder="Почта (логин)">
+        <input id="reg-pass" class="input" type="password" placeholder="Пароль">
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button id="btn-register" class="btn">Отправить заявку</button>
+          <button id="btn-cancel-register" class="btn ghost">Отмена</button>
+        </div>
+      </div>
+
+      <!-- USER -->
+      <div id="card-user" class="card hidden">
+        <div class="userrow">
+          <img id="me-avatar" class="avatar" src="https://via.placeholder.com/72" alt="avatar">
+          <div>
+            <div id="me-name" style="font-weight:700">Гость</div>
+            <div id="me-email" class="small muted">—</div>
+            <div style="margin-top:8px"><span class="small">Баллы:</span> <b id="me-points">0</b></div>
+          </div>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <button id="btn-profile" class="btn small">Кабинет</button>
+          <button id="btn-home" class="btn ghost small">Задания</button>
+          <button id="btn-feedback" class="btn small">Обратная связь</button>
+          <button id="btn-logout" class="btn ghost small">Выйти</button>
+        </div>
+      </div>
+
+      <!-- ADMIN QUICK -->
+      <div id="card-admin" class="card hidden">
+        <div class="small">Админ</div>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+          <button id="btn-open-admin" class="btn small">Открыть админку</button>
+          <button id="btn-admin-logout" class="btn ghost small">Выйти</button>
+        </div>
+      </div>
+
+      <!-- RATING -->
+      <div class="card">
+        <div class="small">Рейтинг (TOP-5)</div>
+        <div id="side-rating" style="margin-top:10px"></div>
+      </div>
+
+      <!-- QUICK LINKS -->
+      <div class="card">
+        <div style="display:flex;gap:8px;flex-direction:column">
+          <button id="btn-open-news" class="btn small">Новости</button>
+          <button id="btn-open-polls" class="btn ghost small">Опросы</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main>
+      <!-- HOME -->
+      <section id="page-home" class="card hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:700;font-size:18px">Доступные задания</div>
+            <div class="small muted">Бери задание — выполняй — отмечай выполнение</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="small muted">Фильтр:</div>
+            <select id="tasks-filter" class="input" style="width:160px;padding:8px">
+              <option value="all">Все</option>
+              <option value="active">Активные</option>
+              <option value="done">Готовые</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="home-news-preview" class="card" style="margin-top:12px"></div>
+
+        <div class="grid-2" style="margin-top:12px">
+          <div>
+            <div style="font-weight:700;margin-bottom:8px">Индивидуальные задания</div>
+            <div id="list-tasks-individual"></div>
+          </div>
+          <div>
+            <div style="font-weight:700;margin-bottom:8px">Групповые задания</div>
+            <div id="list-tasks-group"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div style="font-weight:700;font-size:18px">Мои задания</div>
+          <div class="small muted" style="margin-top:6px">Взятые задания — отмечайте как выполненные. История завершённых заданий хранится 31 день и доступна в профиле.</div>
+          <div id="my-tasks" style="margin-top:10px"></div>
+        </div>
+
+        <div style="margin-top:16px" class="card">
+          <div style="font-weight:700">Рейтинг участников</div>
+          <div class="small muted" style="margin-top:6px">Топ-10 по баллам</div>
+          <div id="rating-table" style="margin-top:10px"></div>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section id="page-profile" class="card hidden">
+        <div style="display:flex;gap:14px;align-items:center">
+          <img id="profile-avatar" class="avatar" src="https://via.placeholder.com/72">
+          <div>
+            <div id="profile-name" style="font-weight:800;font-size:18px">—</div>
+            <div id="profile-email" class="small muted">—</div>
+            <div style="margin-top:8px"><span class="small">Баллы:</span> <b id="profile-points">0</b></div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="small">Загрузить аватар (пойдет на модерацию к админу)</div>
+          <input id="profile-file" type="file" accept="image/*" class="input" style="padding:6px;margin-top:8px">
+          <div style="margin-top:8px"><button id="btn-send-avatar" class="btn">Отправить на проверку</button></div>
+        </div>
+
+        <div style="margin-top:14px" class="card">
+          <div style="font-weight:700">Магазин</div>
+          <div class="small muted" style="margin-top:6px">Покупай поощрения за баллы — они отображаются 3 дня</div>
+          <div id="shop-list" style="margin-top:10px"></div>
+        </div>
+
+        <div style="margin-top:14px" class="card">
+          <div style="font-weight:700">Мои поощрения (покупки)</div>
+          <div class="small muted" style="margin-top:6px">Активные покупки (и дата покупки)</div>
+          <div id="profile-purchases" style="margin-top:10px"></div>
+        </div>
+
+        <div style="margin-top:14px" class="card">
+          <div style="font-weight:700">История завершённых заданий (31 день)</div>
+          <div id="profile-history" style="margin-top:8px"></div>
+        </div>
+
+        <div style="margin-top:12px">
+          <button id="btn-back-home" class="btn ghost">Назад</button>
+        </div>
+      </section>
+
+      <!-- NEWS -->
+      <section id="page-news" class="card hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:700;font-size:18px">Новости</div>
+            <div class="small muted">Последние объявления от администрации</div>
+          </div>
+        </div>
+        <div id="news-list" style="margin-top:12px"></div>
+      </section>
+
+      <!-- POLLS -->
+      <section id="page-polls" class="card hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:700;font-size:18px">Опросы</div>
+            <div class="small muted">Голосования от администрации</div>
+          </div>
+        </div>
+        <div id="polls-list" style="margin-top:12px"></div>
+      </section>
+
+      <!-- FEEDBACK -->
+      <section id="page-feedback" class="card hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:700;font-size:18px">Обратная связь</div>
+            <div class="small muted">Напишите админу — админ может ответить в своей панели</div>
+          </div>
+        </div>
+
+        <div style="margin-top:10px" class="card">
+          <div class="small-muted">Ваши обращения</div>
+          <div id="my-chats" class="chat-list" style="margin-top:8px"></div>
+        </div>
+
+        <div style="margin-top:10px">
+          <div class="small-muted">Создать новое обращение</div>
+          <input id="fb-subj" class="input" placeholder="Кратко о проблеме/вопросе">
+          <select id="fb-cat" class="input" style="margin-top:8px">
+            <option value="">Выберите категорию</option>
+            <option value="tech">Техническая проблема</option>
+            <option value="task">Вопрос по заданиям</option>
+            <option value="general">Общее</option>
+          </select>
+          <textarea id="fb-text" class="input" placeholder="Сообщение" style="min-height:80px"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button id="btn-fb-send" class="btn">Отправить админу</button>
+            <button id="btn-fb-clear" class="btn ghost">Очистить</button>
+          </div>
+          <div class="small-muted" style="margin-top:8px">КД на создание нового обращения: <b>1 час</b>. КД между сообщениями: <b>10 секунд</b>.</div>
+        </div>
+      </section>
+
+      <!-- ADMIN PANEL -->
+      <section id="page-admin" class="card hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:800;font-size:18px">Панель администратора</div>
+            <div class="small muted">Утверждайте аккаунты/аватары, проверяйте задания, начисляйте баллы; владелец имеет ограниченные права (только магазин и смена admin-пароля)</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px" class="card">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+                <div style="font-weight:700">Заявки на регистрацию</div>
+                <input id="admin-pending-search" class="input" placeholder="Поиск по email/ФИО" style="width:48%">
+              </div>
+              <div id="admin-pending" style="margin-top:8px"></div>
+            </div>
+            <div>
+              <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+                <div style="font-weight:700">Заявки на аватар</div>
+                <input id="admin-avatar-search" class="input" placeholder="Поиск по email/ФИО" style="width:48%">
+              </div>
+              <div id="admin-avatar-requests" style="margin-top:8px"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px" class="card">
+          <div style="font-weight:700">Пользователи (ФИО / email / пароль / баллы)</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <input id="admin-user-search" class="input" placeholder="Поиск по ФИО или email" style="width:40%">
+            <select id="admin-user-filter-points" class="input" style="width:30%">
+              <option value="all">Все по баллам</option>
+              <option value="top">Топ 10</option>
+              <option value="0">0 баллов</option>
+            </select>
+          </div>
+          <div class="small-note">Список отсортирован по баллам (убывание). Аккаунты админа и владельца скрыты из списка.</div>
+          <div style="margin-top:8px;max-height:260px;overflow:auto">
+            <table class="table">
+              <thead><tr><th>ФИО</th><th>Email</th><th>Пароль</th><th>Баллы</th><th></th></tr></thead>
+              <tbody id="admin-users-list"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tasks (admin area) -->
+        <div id="admin-tasks-wrap" style="margin-top:12px"></div>
+
+        <div style="margin-top:12px" class="card">
+          <div style="font-weight:700">Задания на проверке</div>
+          <div id="admin-review" style="margin-top:8px"></div>
+        </div>
+
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div id="admin-news-wrap" class="">
+            <div class="card">
+              <div style="font-weight:700">Публикация новостей</div>
+              <input id="admin-news-title" class="input" placeholder="Заголовок новости">
+              <textarea id="admin-news-body" class="input" placeholder="Текст новости" style="min-height:70px"></textarea>
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <button id="btn-admin-news" class="btn">Опубликовать новость</button>
+                <button id="btn-admin-news-clear" class="btn ghost">Очистить</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="admin-polls-wrap" class="">
+            <div class="card">
+              <div style="font-weight:700">Создать опрос</div>
+              <input id="admin-poll-q" class="input" placeholder="Вопрос опроса">
+              <input id="admin-poll-opt" class="input" placeholder="Варианты (через ; )">
+              <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+                <label style="font-size:13px" class="small-muted">Только один выбор</label>
+                <input id="admin-poll-single" type="checkbox" style="transform:scale(1.2);margin-left:6px">
+              </div>
+              <div style="margin-top:8px"><button id="btn-admin-poll" class="btn">Создать опрос</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px" class="card">
+          <div style="font-weight:700">Чаты пользователей (тикеты)</div>
+          <div style="display:flex;gap:12px">
+            <div style="flex:1">
+              <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+                <div class="small-muted">Список обращений</div>
+                <div style="display:flex;gap:8px">
+                  <input id="admin-chat-search" class="input" placeholder="Поиск по теме/имени" style="width:240px">
+                  <select id="admin-chat-filter-cat" class="input" style="width:160px">
+                    <option value="all">Все категории</option>
+                    <option value="tech">Техническая проблема</option>
+                    <option value="task">Вопрос по заданиям</option>
+                    <option value="general">Общее</option>
+                  </select>
+                  <select id="admin-chat-filter-status" class="input" style="width:120px">
+                    <option value="all">Все статусы</option>
+                    <option value="open">Открытые</option>
+                    <option value="closed">Закрытые</option>
+                  </select>
+                </div>
+              </div>
+              <div id="admin-chats-list" class="chat-list" style="margin-top:8px"></div>
+            </div>
+            <div style="flex:2">
+              <div class="small-muted">Переписка</div>
+              <div id="admin-chat-box" class="chat-box" style="margin-top:8px"></div>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <input id="admin-reply" class="input" placeholder="Ответ админа">
+                <button id="btn-admin-reply" class="btn">Отправить</button>
+                <button id="btn-admin-close-ticket" class="btn ghost">Закрыть тикет</button>
+              </div>
+              <div id="admin-typing-indicator" class="small-muted" style="margin-top:8px;display:none">Печатает...</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px" class="card">
+          <div style="font-weight:700">Дашборд: активность (7 дней)</div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <canvas id="dash-chart" style="width:100%;max-width:900px"></canvas>
+          </div>
+        </div>
+
+        <!-- owner-only -->
+        <div id="owner-area" class="card owner-only">
+          <div style="font-weight:700">Управление магазином (владелец)</div>
+          <div class="small-muted" style="margin-bottom:8px">Только владелец может редактировать позиции и цены</div>
+          <div style="display:flex;gap:8px">
+            <input id="shop-add-name" class="input" placeholder="Название позиции" style="width:50%">
+            <input id="shop-add-price" class="input" placeholder="Цена" style="width:30%" type="number">
+            <button id="btn-shop-add" class="btn">Добавить</button>
+          </div>
+          <div id="admin-shop-list" style="margin-top:8px"></div>
+          <div style="margin-top:8px" class="small-muted">Итого баллов в обороте: <b id="total-points">0</b></div>
+          <div style="margin-top:8px" class="small-muted">Смена пароля admin (владелец)</div>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <input id="owner-new-admin-pass" class="input" placeholder="Новый пароль для admin" style="width:60%">
+            <button id="btn-owner-set-admin-pass" class="btn">Установить</button>
+          </div>
+        </div>
+
+        <div style="margin-top:12px" class="card">
+          <div style="font-weight:700">Полный рейтинг пользователей</div>
+          <div id="admin-rating-all" style="margin-top:8px"></div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <div class="footer">Демо-прототип. Данные сохраняются в браузере (localStorage).</div>
+</div>
+  <div id="mobile-overlay" class="overlay hidden"></div>
+
+<div id="toast"></div>
+
+<script>
+/* ==========================
+ Storage keys & defaults
+========================== */
+const SK_USERS='sv_users_final_v6';
+const SK_PENDING='sv_pending_final_v6';
+const SK_AV='sv_avatar_req_final_v6';
+const SK_TASKS='sv_tasks_final_v6';
+const SK_NEWS='sv_news_final_v6';
+const SK_POLLS='sv_polls_final_v6';
+const SK_CHATS='sv_chats_final_v6';
+const SK_THEME='sv_theme_final_v6';
+const SK_SHOP='sv_shop_final_v6';
+
+const ADMIN_LOGIN='admin';
+let ADMIN_PASS='admin123'; // can be changed by owner
+
+/* load */
+let users = JSON.parse(localStorage.getItem(SK_USERS) || '[]');
+let pending = JSON.parse(localStorage.getItem(SK_PENDING) || '[]');
+let avatarRequests = JSON.parse(localStorage.getItem(SK_AV) || '[]');
+let tasks = JSON.parse(localStorage.getItem(SK_TASKS) || '[]');
+let news = JSON.parse(localStorage.getItem(SK_NEWS) || '[]');
+let polls = JSON.parse(localStorage.getItem(SK_POLLS) || '[]');
+let chats = JSON.parse(localStorage.getItem(SK_CHATS) || '[]');
+let shop = JSON.parse(localStorage.getItem(SK_SHOP) || '[]');
+
+let current = null;
+
+/* cooldowns/durations (ms) */
+const COOLDOWN_NEW_TICKET = 24*60*60*1000; // 24 hours
+const COOLDOWN_USER_MSG = 10*1000; // 10 sec
+const TICKET_HISTORY_DAYS = 7;
+const TASK_HISTORY_DAYS = 31;
+
+const adminTypingTimers = {};
+
+function q(id){ return document.getElementById(id); }
+function show(el){ if(!el) return; el.classList.remove('hidden'); el.style.display='block'; }
+function hide(el){ if(!el) return; el.classList.add('hidden'); }
+function saveAll(){ 
+  localStorage.setItem(SK_USERS, JSON.stringify(users)); 
+  localStorage.setItem(SK_PENDING, JSON.stringify(pending)); 
+  localStorage.setItem(SK_AV, JSON.stringify(avatarRequests)); 
+  localStorage.setItem(SK_TASKS, JSON.stringify(tasks)); 
+  localStorage.setItem(SK_NEWS, JSON.stringify(news)); 
+  localStorage.setItem(SK_POLLS, JSON.stringify(polls)); 
+  localStorage.setItem(SK_CHATS, JSON.stringify(chats)); 
+  localStorage.setItem(SK_SHOP, JSON.stringify(shop)); 
+}
+function fmtDate(ts){ return ts ? new Date(ts).toLocaleString() : ''; }
+function toast(msg, time=2500){ const el=q('toast'); el.innerText = msg; el.style.display='block'; setTimeout(()=> el.style.display='none', time); }
+
+/* ensure owner + admin exist */
+function ensureSystemAccounts(){
+  const ownerLogin = 'iloveГип';
+  const ownerPass = 'Sina';
+  if(!users.some(u=>u.email === ownerLogin && u.role === 'owner')){
+    users.push({ fio: 'Владелец', email: ownerLogin, pass: ownerPass, role: 'owner', points:0, tasks:[], history:[], purchases:[], created: Date.now(), lastTicketAt:0 });
+  }
+  if(!users.some(u=>u.email === ADMIN_LOGIN && u.role === 'admin')){
+    users.push({ fio: 'Администратор', email: ADMIN_LOGIN, pass: ADMIN_PASS, role: 'admin', points:0, tasks:[], history:[], purchases:[], created: Date.now(), lastTicketAt:0 });
+  } else {
+    const a = users.find(u=>u.email===ADMIN_LOGIN && u.role==='admin');
+    if(a && a.pass) ADMIN_PASS = a.pass;
+  }
+  if(!Array.isArray(shop) || shop.length===0){
+    shop = [
+      { id:'s1', name:'Поощрение по биологии', price:50 },
+      { id:'s2', name:'Поощрение по истории', price:40 },
+      { id:'s3', name:'Поощрение по математике', price:70 }
+    ];
+  }
+  // seed tasks if empty
+  if(!Array.isArray(tasks) || tasks.length===0){
+    tasks = [
+      { id:'t1', title:'Помочь на субботнике', desc:'Сбор мусора в корпусе, 2 часа', points:20, type:'group', limit:8, taken:[], startTake:null, endTake:null, created: Date.now() },
+      { id:'t2', title:'Проверка техники', desc:'Проверить 5 компьютеров в аудитории 4', points:15, type:'individual', limit:1, taken:[], startTake:null, endTake:null, created: Date.now() }
+    ];
+  }
+  saveAll();
+}
+ensureSystemAccounts();
+
+/* theme */
+function applyTheme(t){
+  if(t === 'dark'){ document.body.classList.add('dark'); q('btn-theme').innerText = 'Светлая'; localStorage.setItem(SK_THEME,'dark'); }
+  else { document.body.classList.remove('dark'); q('btn-theme').innerText = 'Тёмная'; localStorage.setItem(SK_THEME,'light'); }
+}
+applyTheme(localStorage.getItem(SK_THEME) || 'light');
+q('btn-theme').addEventListener('click', ()=> applyTheme(document.body.classList.contains('dark') ? 'light' : 'dark'));
+
+/* cleanup old */
+function cleanupOldData(){
+  const now = Date.now();
+  const week = TICKET_HISTORY_DAYS * 24*3600*1000;
+  chats = chats.filter(c => (now - c.ts) <= week );
+  const ms31 = TASK_HISTORY_DAYS * 24*3600*1000;
+  users.forEach(u=>{
+    if(Array.isArray(u.history)) u.history = u.history.filter(h => (now - h.ts) <= ms31);
+    if(Array.isArray(u.purchases)) u.purchases = u.purchases.filter(p => (now - p.ts) <= 3*24*3600*1000);
+  });
+  saveAll();
+}
+cleanupOldData();
+
+/* UI wiring */
+q('btn-show-register').addEventListener('click', ()=>{ hide(q('card-login')); show(q('card-register')); });
+q('btn-cancel-register').addEventListener('click', ()=>{ show(q('card-login')); hide(q('card-register')); });
+q('btn-register').addEventListener('click', doRegister);
+q('btn-login').addEventListener('click', doLogin);
+q('btn-logout').addEventListener('click', doLogout);
+q('btn-admin-logout').addEventListener('click', doLogoutAdmin);
+q('btn-profile').addEventListener('click', openProfile);
+q('btn-send-avatar').addEventListener('click', sendAvatarRequest);
+q('btn-home').addEventListener('click', ()=>{ hideAllPages(); show(q('page-home')); renderAllHome(); });
+q('btn-back-home').addEventListener('click', ()=>{ hideAllPages(); show(q('page-home')); renderAllHome(); });
+q('btn-open-admin').addEventListener('click', ()=>{ hideAllPages(); show(q('page-admin')); renderAdminOverview(); renderAdminChatsList(); renderDash(); });
+q('btn-open-news').addEventListener('click', ()=>{ hideAllPages(); show(q('page-news')); renderNewsList(); });
+q('btn-open-polls').addEventListener('click', ()=>{ hideAllPages(); show(q('page-polls')); renderPollsList(); });
+q('btn-fb-send').addEventListener('click', sendFeedback);
+q('btn-fb-clear').addEventListener('click', ()=>{ q('fb-subj').value=''; q('fb-text').value=''; q('fb-cat').value=''; });
+q('btn-feedback').addEventListener('click', ()=>{ hideAllPages(); show(q('page-feedback')); renderMyChats(); });
+q('btn-admin-news') && q('btn-admin-news').addEventListener('click', adminPublishNews);
+q('btn-admin-poll') && q('btn-admin-poll').addEventListener('click', adminCreatePoll);
+q('btn-admin-reply') && q('btn-admin-reply').addEventListener('click', adminSendReply);
+q('btn-admin-close-ticket') && q('btn-admin-close-ticket').addEventListener('click', adminCloseTicket);
+q('btn-export-csv').addEventListener('click', exportCSV);
+q('btn-shop-add') && q('btn-shop-add').addEventListener('click', adminShopAdd);
+q('btn-owner-set-admin-pass') && q('btn-owner-set-admin-pass').addEventListener('click', ownerSetAdminPass);
+q('btn-admin-news-clear') && q('btn-admin-news-clear').addEventListener('click', ()=>{ q('admin-news-title').value=''; q('admin-news-body').value=''; });
+
+
+// Mobile hamburger toggle
+(function(){
+  const hb = q('btn-hamburger');
+  const overlay = q('mobile-overlay');
+  function closeSide(){
+    document.body.classList.remove('side-open');
+    if(overlay) { hide(overlay); overlay.classList.remove('visible'); }
+  }
+  function openSide(){
+    document.body.classList.add('side-open');
+    if(overlay) { show(overlay); overlay.classList.add('visible'); }
+  }
+  if(hb){
+    hb.addEventListener('click', ()=>{
+      if(document.body.classList.contains('side-open')) closeSide(); else openSide();
+    });
+  }
+  if(overlay){
+    overlay.addEventListener('click', ()=> closeSide());
+  }
+  // close side on window resize to desktop
+  window.addEventListener('resize', ()=>{
+    if(window.innerWidth > 720 && document.body.classList.contains('side-open')) closeSide();
+  });
+})();
+
+
+q('tasks-filter').addEventListener('change', ()=>{ renderTasks(); });
+
+q('admin-user-search') && q('admin-user-search').addEventListener('input', renderAdminOverview);
+q('admin-pending-search') && q('admin-pending-search').addEventListener('input', renderAdminOverview);
+q('admin-avatar-search') && q('admin-avatar-search').addEventListener('input', renderAdminOverview);
+q('admin-chat-search') && q('admin-chat-search').addEventListener('input', renderAdminChatsList);
+q('admin-chat-filter-cat') && q('admin-chat-filter-cat').addEventListener('change', renderAdminChatsList);
+q('admin-chat-filter-status') && q('admin-chat-filter-status').addEventListener('change', renderAdminChatsList);
+
+/* hide pages helper */
+function hideAllPages(){ ['page-home','page-profile','page-admin','page-news','page-polls','page-feedback'].forEach(id=> hide(q(id))); }
+
+/* Auth */
+function doRegister(){
+  const fio = q('reg-fio').value.trim();
+  const email = q('reg-email').value.trim().toLowerCase();
+  const pass = q('reg-pass').value;
+  if(!fio || !email || !pass){ alert('Заполните все поля'); return; }
+  if(email === ADMIN_LOGIN || users.some(u=>u.email===email) || pending.some(p=>p.email===email)){
+    alert('Пользователь с таким email уже есть'); return;
+  }
+  pending.push({ fio, email, pass, ts: Date.now() });
+  saveAll();
+  q('reg-fio').value=''; q('reg-email').value=''; q('reg-pass').value='';
+  show(q('card-login')); hide(q('card-register'));
+  renderAdminOverview();
+  toast('Заявка отправлена');
+}
+
+function doLogin(){
+  const login = q('inp-login').value.trim();
+  const pass = q('inp-pass').value;
+  if(!login || !pass){ alert('Введите логин и пароль'); return; }
+
+  // owner
+  const ownerAcc = users.find(u=>u.role==='owner' && u.email === login);
+  if(ownerAcc && ownerAcc.pass === pass){
+    current = ownerAcc;
+    hide(q('card-login')); hide(q('card-register'));
+    hide(q('card-user')); show(q('card-admin'));
+    hideAllPages(); show(q('page-admin'));
+    renderAdminOverview(); renderAdminChatsList(); renderDash();
+    q('inp-login').value=''; q('inp-pass').value='';
+    showCsvButtonIfAllowed('owner');
+    showOwnerArea(true);
+    toast('Вошёл как владелец');
+    return;
+  }
+
+  // admin
+  const adminUser = users.find(u=>u.role==='admin' && u.email === ADMIN_LOGIN);
+  if(adminUser && login === ADMIN_LOGIN && pass === (adminUser.pass || ADMIN_PASS)){
+    ADMIN_PASS = adminUser.pass = pass;
+    current = { role:'admin' };
+    hide(q('card-login')); hide(q('card-register'));
+    hide(q('card-user')); show(q('card-admin'));
+    hideAllPages(); show(q('page-admin'));
+    renderAdminOverview(); renderSideWidgets(); renderAdminChatsList(); renderDash();
+    q('inp-login').value=''; q('inp-pass').value='';
+    showCsvButtonIfAllowed('admin');
+    showOwnerArea(false);
+    toast('Вход как админ');
+    return;
+  }
+
+  // normal user
+  const u = users.find(x=>x.email===login && x.pass===pass && x.role !== 'owner' && x.role !== 'admin');
+  if(!u){ alert('Неверный логин/пароль или аккаунт не подтвержден'); return; }
+  current = u;
+  hide(q('card-login')); hide(q('card-register')); hide(q('card-admin')); show(q('card-user'));
+  hideAllPages(); show(q('page-home'));
+  updateUserPanel();
+  renderTasks(); renderMyTasks(); renderSideWidgets(); renderAllHome();
+  q('inp-login').value=''; q('inp-pass').value='';
+  showCsvButtonIfAllowed(null);
+  showOwnerArea(false);
+  toast('Вошёл как ' + current.fio);
+}
+
+function doLogout(){
+  if(current && current.role !== 'admin' && current.role !== 'owner'){
+    const idx = users.findIndex(u=>u.email === current.email);
+    if(idx >= 0){ users[idx] = current; saveAll(); }
+  }
+  current = null;
+  show(q('card-login')); hide(q('card-register')); hide(q('card-user')); hide(q('card-admin'));
+  hideAllPages();
+  renderSideWidgets();
+  showCsvButtonIfAllowed(null);
+  showOwnerArea(false);
+  toast('Вышел из аккаунта');
+}
+
+function doLogoutAdmin(){
+  current = null;
+  show(q('card-login')); hide(q('card-admin')); hide(q('page-admin'));
+  renderSideWidgets();
+  showCsvButtonIfAllowed(null);
+  showOwnerArea(false);
+  toast('Админ вышел');
+}
+
+/* CSV button visibility */
+function showCsvButtonIfAllowed(role){
+  const btn = q('btn-export-csv');
+  if(!btn) return;
+  if(role === 'admin' || role === 'owner'){ btn.classList.remove('hidden'); }
+  else { btn.classList.add('hidden'); }
+}
+
+/* owner area visibility */
+function showOwnerArea(showIt){
+  const el = q('owner-area');
+  if(!el) return;
+  if(showIt) el.classList.remove('owner-only');
+  else el.classList.add('owner-only');
+}
+
+/* update user panel */
+function updateUserPanel(){
+  if(!current || current.role === 'admin' || current.role === 'owner') return;
+  q('me-name').innerText = current.fio;
+  q('me-email').innerText = current.email;
+  q('me-points').innerText = current.points || 0;
+  q('me-avatar').src = current.avatar || current.pendingAvatar || 'https://via.placeholder.com/72';
+}
+
+/* Tasks */
+function renderTasks(){
+  const contInd = q('list-tasks-individual');
+  const contGrp = q('list-tasks-group');
+  contInd.innerHTML = ''; contGrp.innerHTML = '';
+  const now = Date.now();
+  const filter = q('tasks-filter').value || 'all';
+  if(!current || current.role === 'admin' || current.role === 'owner'){
+    contInd.innerHTML = '<div class="small muted">Войдите как пользователь, чтобы брать задания</div>';
+    contGrp.innerHTML = '';
+    return;
+  }
+  tasks.forEach(t=>{
+    const startOk = !t.startTake || (now >= t.startTake);
+    const endOk = !t.endTake || (now <= t.endTake);
+    const canTakeNow = startOk && endOk;
+    const remaining = (t.limit || 1) - (t.taken ? t.taken.length : 0);
+    const userTask = (current.tasks || []).find(x=>x.id === t.id);
+    if(filter === 'done' && (!userTask || (userTask.status !== 'выполнено' && userTask.status !== 'выполнено_подтверждено'))) return;
+    if(filter === 'active' && userTask && (userTask.status === 'выполнено' || userTask.status === 'выполнено_подтверждено')) return;
+    const statusHtml = userTask ? `<div style="margin-top:6px" class="small-muted">Ваш статус: <b>${userTask.status}</b></div>` : '';
+    const actionBtn = (canTakeNow && remaining>0 && !userHasTask(current, t.id)) 
+      ? `<div style="margin-top:8px"><button class="btn small" onclick="takeTask('${t.id}')">Взять</button></div>` 
+      : `<div style="margin-top:8px" class="small muted">${ remaining<=0 ? 'Мест нет' : (canTakeNow ? '' : 'Взять нельзя сейчас') }</div>`;
+    const commonHtml = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="max-width:70%"><div style="font-weight:700">${t.title}</div><div class="small muted">${t.desc}</div>
+        <div class="small-note">Прием до: ${t.endTake ? fmtDate(t.endTake) : '—'} | Мест: ${remaining}/${t.limit}</div>
+        ${statusHtml}
+      </div>
+      <div style="text-align:right">
+        <div class="small muted">${t.points} баллов</div>
+        ${actionBtn}
+      </div>
+    </div>`;
+    const wrapper = document.createElement('div'); wrapper.className='task';
+    wrapper.innerHTML = commonHtml;
+    if(t.type === 'individual') contInd.appendChild(wrapper);
+    else contGrp.appendChild(wrapper);
+  });
+}
+function userHasTask(userObj, taskId){ if(!userObj || !userObj.tasks) return false; return userObj.tasks.some(x=>x.id === taskId); }
+function takeTask(id){
+  if(!current || current.role === 'admin' || current.role === 'owner'){ alert('Только пользователь'); return; }
+  const t = tasks.find(x=>x.id === id);
+  if(!t) return;
+  const now = Date.now();
+  if((t.startTake && now < t.startTake) || (t.endTake && now > t.endTake)){ alert('Нельзя взять — не в окне приёма.'); return; }
+  t.taken = t.taken || [];
+  if(t.taken.includes(current.email)){ alert('Вы уже взяли это задание'); return; }
+  if((t.taken.length || 0) >= (t.limit || 1)){ alert('Мест нет'); return; }
+  if(t.type === 'individual' && (t.taken.length > 0)){ alert('Задание уже занято'); return; }
+  t.taken.push(current.email);
+  if(!current.tasks) current.tasks = [];
+  current.tasks.push({ id:t.id, title:t.title, desc:t.desc, points:t.points, status:'взято', ts: Date.now() });
+  const idx = users.findIndex(u=>u.email===current.email);
+  if(idx>=0){ users[idx] = current; }
+  saveAll();
+  renderMyTasks(); renderTasks(); renderAdminOverview(); updateUserPanel();
+  toast('Задание взято!');
+}
+function renderMyTasks(){
+  const cont = q('my-tasks'); cont.innerHTML = '';
+  if(!current || current.role === 'admin' || current.role === 'owner'){ cont.innerHTML = '<div class="small muted">Войдите как пользователь</div>'; return; }
+  (current.tasks || []).forEach((t,i)=>{
+    const el = document.createElement('div'); el.className='task' + (t.status === 'выполнено' || t.status==='выполнено_подтверждено' ? ' completed' : '');
+    let actionHtml = '';
+    if(t.status === 'взято'){
+      actionHtml = `<div style="margin-top:8px" class="center"><button class="btn small" onclick="markDone(${i})">Отметить выполнено</button></div>`;
+    } else if(t.status === 'выполнено'){
+      actionHtml = `<div style="margin-top:8px" class="center small-muted">Отмечено как выполненное — ожидает подтверждения админа</div>`;
+    } else if(t.status === 'на проверке'){
+      actionHtml = `<div style="margin-top:8px" class="center small-muted">Отправлено на проверку</div>`;
+    } else if(t.status === 'отклонено'){
+      actionHtml = `<div style="margin-top:8px" class="center small-muted">Отклонено админом</div>`;
+    } else if(t.status === 'выполнено_подтверждено'){
+      actionHtml = `<div style="margin-top:8px" class="center small-muted">Выполнено и подтверждено — баллы начислены</div>`;
+    }
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <div><strong>${t.title}</strong><div class="small muted">${t.desc}</div></div>
+      <div class="small muted">${t.points} б.</div>
+    </div>
+    <div style="margin-top:8px">Статус: <b>${t.status}</b> ${t.status==='взято'?`<span class="small muted"> (взято: ${fmtDate(t.ts)})</span>`:''}</div>
+    ${actionHtml}`;
+    cont.appendChild(el);
+  });
+}
+function markDone(idx){
+  if(!current || current.role === 'admin' || current.role === 'owner') return;
+  current.tasks[idx].status = 'выполнено';
+  current.tasks[idx].ts_done = Date.now();
+  const ui = users.findIndex(u=>u.email === current.email);
+  if(ui>=0){ users[ui] = current; saveAll(); }
+  renderMyTasks(); renderTasks(); renderAdminOverview();
+  toast('Задание отмечено как выполненное. Админ подтвердит.');
+}
+
+/* Admin overview */
+function renderAdminOverview(){
+  // pending
+  const pendDiv = q('admin-pending'); pendDiv.innerHTML = '';
+  const query = (q('admin-pending-search') && q('admin-pending-search').value.trim().toLowerCase()) || '';
+  pending.forEach((p,i)=>{
+    if(query && !((p.fio||'').toLowerCase().includes(query) || (p.email||'').toLowerCase().includes(query))) return;
+    const d = document.createElement('div'); d.className='task';
+    d.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <div><strong>${p.fio}</strong><div class="small muted">${p.email}</div></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn small" onclick="approvePending(${i})">Принять</button>
+        <button class="btn ghost small" onclick="rejectPending(${i})">Отклонить</button>
+      </div></div>`;
+    pendDiv.appendChild(d);
+  });
+
+  // avatars
+  const avDiv = q('admin-avatar-requests'); avDiv.innerHTML = '';
+  const avatarQ = (q('admin-avatar-search') && q('admin-avatar-search').value.trim().toLowerCase()) || '';
+  avatarRequests.forEach((a,i)=>{
+    if(avatarQ && !((a.fio||'').toLowerCase().includes(avatarQ) || (a.email||'').toLowerCase().includes(avatarQ))) return;
+    const d = document.createElement('div'); d.className='task';
+    d.innerHTML = `<div style="display:flex;gap:10px;align-items:center">
+      <img src="${a.data}" class="avatar"><div><strong>${a.fio}</strong><div class="small muted">${a.email}</div></div>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn small" onclick="approveAvatar(${i})">Одобрить</button>
+        <button class="btn ghost small" onclick="rejectAvatar(${i})">Отклонить</button>
+      </div>
+    </div>`;
+    avDiv.appendChild(d);
+  });
+
+  // users table: hide owner and admin
+  const tbody = q('admin-users-list'); tbody.innerHTML = '';
+  const userQuery = (q('admin-user-search') && q('admin-user-search').value.trim().toLowerCase()) || '';
+  let sortedUsers = [...users].filter(u=> u.role !== 'owner' && u.role !== 'admin'); 
+  sortedUsers = sortedUsers.sort((a,b)=> (b.points||0) - (a.points||0));
+  const filterPoints = (q('admin-user-filter-points') && q('admin-user-filter-points').value) || 'all';
+  if(filterPoints === 'top') sortedUsers = sortedUsers.slice(0,10);
+  if(filterPoints === '0') sortedUsers = sortedUsers.filter(u=> (u.points||0) === 0);
+  sortedUsers.forEach((u,i)=>{
+    if(userQuery && !((u.fio||'').toLowerCase().includes(userQuery) || (u.email||'').toLowerCase().includes(userQuery))) return;
+    const origIndex = users.findIndex(x=>x.email===u.email);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${u.fio}</td><td>${u.email}</td><td>${u.pass}</td><td>${u.points||0}</td>
+      <td style="white-space:nowrap">
+        <input type="number" id="pt-${origIndex}" placeholder="баллы" style="width:70px;padding:6px;border-radius:6px;border:1px solid var(--input-border);background:transparent;color:var(--text)">
+        <button class="btn small" onclick="adminAddPoints(${origIndex})">+</button>
+        <button class="btn ghost small" onclick="adminRemovePoints(${origIndex})">-</button>
+        <button class="btn ghost small" onclick="adminDeleteUser(${origIndex})">Удалить</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  // review tasks
+  const review = q('admin-review'); review.innerHTML = '';
+  users.forEach((u,ui)=>{
+    if(u.role === 'owner') return;
+    (u.tasks||[]).forEach((t,ti)=>{
+      if(t.status === 'выполнено' || t.status === 'на проверке'){
+        const d = document.createElement('div'); d.className='task';
+        d.innerHTML = `<div style="display:flex;align-items:center;gap:12px">
+          <div style="flex:1"><b>${t.title}</b><div class="small muted">${u.fio} — ${u.email}</div><div style="margin-top:8px;color:var(--muted)">${t.desc}</div></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn small" onclick="adminApproveTask(${ui},${ti})">Принять</button>
+            <button class="btn ghost small" onclick="adminRejectTask(${ui},${ti})">Отклонить</button>
+          </div>
+        </div>`;
+        review.appendChild(d);
+      }
+    });
+  });
+
+  // rating list (exclude admin & owner)
+  const rate = q('admin-rating-all'); rate.innerHTML = '';
+  const forRating = [...users].filter(u => u.role !== 'admin' && u.role !== 'owner').sort((a,b)=> (b.points||0) - (a.points||0));
+  forRating.forEach((u,i)=>{
+    const r = document.createElement('div'); r.className='task';
+    r.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <div><strong>${i+1}. ${u.fio}</strong><div class="small muted">${u.email}</div></div>
+      <div class="small muted">${u.points||0} б.</div>
+    </div>`;
+    rate.appendChild(r);
+  });
+
+  // admin-only add-task / news / polls visibility
+  const isOwner = current && current.role === 'owner';
+  const adminTasksWrap = q('admin-tasks-wrap');
+  const adminNewsWrap = q('admin-news-wrap');
+  const adminPollsWrap = q('admin-polls-wrap');
+  if(isOwner){
+    adminTasksWrap.innerHTML = '';
+    adminNewsWrap.innerHTML = '';
+    adminPollsWrap.innerHTML = '';
+  } else {
+    if(current && current.role === 'admin'){
+      if(adminTasksWrap.innerHTML.trim()===''){
+        adminTasksWrap.innerHTML = `<div class="card">
+          <div style="font-weight:700">Добавить задание</div>
+          <input id="admin-task-title" class="input" placeholder="Название задания" />
+          <input id="admin-task-points" class="input" type="number" placeholder="Баллы" />
+          <textarea id="admin-task-desc" class="input" placeholder="Описание" style="min-height:70px"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <select id="admin-task-type" class="input" style="width:50%">
+              <option value="individual">Индивидуальное (1 чел.)</option>
+              <option value="group">Групповое</option>
+            </select>
+            <input id="admin-task-limit" class="input" type="number" style="width:50%" placeholder="Лимит участников (для групповых)">
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <input id="admin-task-start" class="input" type="datetime-local" style="width:50%" placeholder="Начало приема">
+            <input id="admin-task-end" class="input" type="datetime-local" style="width:50%" placeholder="Конец приема">
+          </div>
+          <div style="margin-top:8px"><button id="btn-admin-add" class="btn">Опубликовать</button></div>
+        </div>`;
+        q('btn-admin-add').addEventListener('click', adminAddTask);
+      }
+      // ensure news/polls wrappers have admin controls if missing
+      // (listeners already wired earlier)
+    } else {
+      adminTasksWrap.innerHTML = '';
+    }
+  }
+
+  // update totals & shop
+  updateTotalPoints();
+  renderAdminShop();
+}
+
+/* admin actions */
+function approvePending(i){
+  const p = pending.splice(i,1)[0];
+  const newUser = {
+    fio: p.fio,
+    email: p.email,
+    pass: p.pass,
+    role: 'user',
+    avatar: null,
+    pendingAvatar: null,
+    avatarApproved: true,
+    points: 0,
+    tasks: [],
+    history: [],
+    purchases: [],
+    created: Date.now(),
+    lastTicketAt:0
+  };
+  users.push(newUser);
+  saveAll(); renderAdminOverview(); renderSideWidgets();
+  toast('Пользователь одобрен');
+}
+function rejectPending(i){
+  if(!confirm('Отклонить заявку?')) return;
+  pending.splice(i,1); saveAll(); renderAdminOverview();
+}
+function approveAvatar(i){
+  const req = avatarRequests.splice(i,1)[0];
+  const user = users.find(u=>u.email === req.email);
+  if(user){ user.avatar = req.data; user.pendingAvatar = null; user.avatarApproved = true; saveAll(); renderAdminOverview(); renderSideWidgets(); toast('Аватар одобрен'); }
+  else { saveAll(); renderAdminOverview(); }
+}
+function rejectAvatar(i){
+  avatarRequests.splice(i,1); saveAll(); renderAdminOverview();
+}
+function adminDeleteUser(i){
+  if(!confirm('Удалить пользователя?')) return;
+  if(users[i] && users[i].role === 'owner'){ alert('Нельзя удалять владельца'); return; }
+  users.splice(i,1); saveAll(); renderAdminOverview(); renderSideWidgets();
+}
+function adminAddPoints(i){
+  const v = parseInt(q('pt-'+i).value) || 0;
+  users[i].points = (users[i].points||0) + v;
+  saveAll(); renderAdminOverview(); renderSideWidgets();
+}
+function adminRemovePoints(i){
+  const v = parseInt(q('pt-'+i).value) || 0;
+  users[i].points = (users[i].points||0) - v;
+  if(users[i].points < 0) users[i].points = 0;
+  saveAll(); renderAdminOverview(); renderSideWidgets();
+}
+
+/* admin add task */
+function adminAddTask(){
+  if(!current || current.role !== 'admin'){ alert('Только админ'); return; }
+  const title = q('admin-task-title').value.trim();
+  const points = parseInt(q('admin-task-points').value) || 0;
+  const desc = q('admin-task-desc').value.trim();
+  const type = q('admin-task-type').value;
+  const limit = parseInt(q('admin-task-limit').value) || (type==='individual'?1:1);
+  const startStr = q('admin-task-start').value;
+  const endStr = q('admin-task-end').value;
+  if(!title || !desc || !points){ alert('Заполните поля задания'); return; }
+  const startTake = startStr ? (new Date(startStr)).getTime() : null;
+  const endTake = endStr ? (new Date(endStr)).getTime() : null;
+  if(startTake && endTake && startTake > endTake){ alert('Временной отрезок указан неверно'); return; }
+  const id = 't' + Date.now();
+  tasks.push({ id, title, desc, points, type, limit, taken:[], startTake, endTake, created: Date.now() });
+  saveAll();
+  q('admin-task-title') && (q('admin-task-title').value=''); q('admin-task-points') && (q('admin-task-points').value=''); q('admin-task-desc') && (q('admin-task-desc').value=''); q('admin-task-limit') && (q('admin-task-limit').value=''); q('admin-task-start') && (q('admin-task-start').value=''); q('admin-task-end') && (q('admin-task-end').value='');
+  renderTasks(); renderAdminOverview(); toast('Задание добавлено');
+}
+function adminApproveTask(ui, ti){
+  const u = users[ui]; const t = u.tasks[ti];
+  t.status = 'выполнено_подтверждено'; t.ts_approved = Date.now();
+  u.points = (u.points || 0) + (t.points || 0);
+  u.history = u.history || []; u.history.push({ title: t.title, points: t.points, ts: Date.now() });
+  saveAll(); renderAdminOverview(); renderSideWidgets(); toast('Задание подтверждено и баллы начислены');
+}
+function adminRejectTask(ui, ti){
+  const u = users[ui]; u.tasks[ti].status = 'отклонено'; saveAll(); renderAdminOverview();
+}
+
+/* avatar upload user */
+function sendAvatarRequest(){
+  if(!current || current.role === 'admin' || current.role === 'owner'){ alert('Войдите как пользователь'); return; }
+  const f = q('profile-file').files[0];
+  if(!f){ alert('Выберите файл'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    avatarRequests.push({ email: current.email, fio: current.fio, data: e.target.result, ts: Date.now() });
+    saveAll(); renderAdminOverview(); toast('Аватар отправлен на модерацию');
+  };
+  reader.readAsDataURL(f);
+}
+
+/* shop (owner) */
+function renderAdminShop(){
+  const el = q('admin-shop-list');
+  if(!el) return;
+  el.innerHTML = '';
+  if(!(current && current.role === 'owner')){ el.innerHTML = '<div class="small-muted">Управление магазином доступно только владельцу</div>'; return; }
+  shop.forEach((s,i)=>{
+    const item = document.createElement('div'); item.className='task';
+    item.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <div><b>${s.name}</b><div class="small-muted">Цена: ${s.price} б.</div></div>
+      <div style="display:flex;gap:8px">
+        <input id="shop-price-${i}" type="number" value="${s.price}" class="input" style="width:120px;padding:6px">
+        <button class="btn small" onclick="adminShopUpdate(${i})">Сохранить</button>
+        <button class="btn ghost small" onclick="adminShopDelete(${i})">Удалить</button>
+      </div>
+    </div>`;
+    el.appendChild(item);
+  });
+}
+function adminShopAdd(){
+  if(!current || current.role !== 'owner'){ alert('Только владелец может редактировать магазин'); return; }
+  const name = q('shop-add-name').value.trim();
+  const price = parseInt(q('shop-add-price').value) || 0;
+  if(!name || !price){ alert('Введите имя и цену'); return; }
+  shop.push({ id:'s'+Date.now(), name, price });
+  q('shop-add-name').value=''; q('shop-add-price').value='';
+  saveAll(); renderAdminShop(); toast('Позиция добавлена');
+}
+function adminShopUpdate(i){
+  if(!current || current.role !== 'owner'){ alert('Только владелец'); return; }
+  const val = parseInt(q('shop-price-'+i).value) || 0;
+  shop[i].price = val;
+  saveAll(); renderAdminShop(); toast('Цена обновлена');
+}
+function adminShopDelete(i){
+  if(!current || current.role !== 'owner'){ alert('Только владелец'); return; }
+  if(!confirm('Удалить позицию?')) return;
+  shop.splice(i,1); saveAll(); renderAdminShop(); toast('Позиция удалена');
+}
+function updateTotalPoints(){
+  const total = users.reduce((s,u)=> s + (u.points||0), 0);
+  q('total-points') && (q('total-points').innerText = total);
+}
+
+/* news */
+function renderNewsList(){
+  const div = q('news-list'); div.innerHTML = '';
+  const sorted = [...news].sort((a,b)=> b.ts - a.ts);
+  if(sorted.length===0){ div.innerHTML = '<div class="small muted">Нет новостей</div>'; return; }
+  sorted.forEach(n=>{
+    const el = document.createElement('div'); el.className='news-item';
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <div><strong>${n.title}</strong><div class="small-muted" style="margin-top:6px">${n.body}</div></div>
+      <div class="small-muted">${fmtDate(n.ts)}</div>
+    </div>`;
+    div.appendChild(el);
+  });
+}
+function adminPublishNews(){
+  if(!current || current.role !== 'admin'){ alert('Только админ может публиковать новости'); return; }
+  const title = q('admin-news-title').value.trim();
+  const body = q('admin-news-body').value.trim();
+  if(!title || !body){ alert('Заполните заголовок и текст новости'); return; }
+  news.unshift({ id:'n'+Date.now(), title, body, ts: Date.now() });
+  saveAll(); q('admin-news-title').value=''; q('admin-news-body').value=''; renderNewsList(); renderAllHome(); toast('Новость опубликована');
+}
+
+/* polls */
+function renderPollsList(){
+  const div = q('polls-list'); div.innerHTML = '';
+  if(polls.length===0){ div.innerHTML = '<div class="small muted">Нет опросов</div>'; return; }
+  polls.forEach(p=>{
+    const wrapper = document.createElement('div'); wrapper.className='task';
+    const totalVotes = Object.keys(p.votes || {}).length;
+    let optsHtml = '';
+    p.opts.forEach(opt=>{
+      const count = Object.values(p.votes || {}).filter(v=>{
+        if(p.singleChoice) return v === opt.id;
+        return Array.isArray(v) && v.includes(opt.id);
+      }).length;
+      const userVoted = current && current.role!=='admin' && current.role!=='owner' && Object.keys(p.votes||{}).includes(current.email);
+      const votedByUser = current && current.role!=='admin' && current.role!=='owner' && p.votes && (
+        p.singleChoice ? p.votes[current.email] === opt.id : (Array.isArray(p.votes[current.email]) && p.votes[current.email].includes(opt.id))
+      );
+      const voteAction = p.singleChoice 
+        ? (current && current.role!=='admin' && current.role!=='owner' && !userVoted ? `<button class="btn small" onclick="votePoll('${p.id}','${opt.id}')">Голосовать</button>` : '')
+        : (current && current.role!=='admin' && current.role!=='owner' ? `<button class="btn small" onclick="toggleVotePoll('${p.id}','${opt.id}')">${votedByUser ? 'Отменить' : 'Голосовать'}</button>` : '');
+      optsHtml += `<div class="poll-option">
+          <div>${opt.text} ${votedByUser ? '(Ваш выбор)' : ''}</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="small-muted">${count}${totalVotes?'/ '+totalVotes:''}</div>
+            ${voteAction}
+          </div>
+        </div>`;
+    });
+    wrapper.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>${p.q}</strong><div class="small-muted">Создан: ${fmtDate(p.ts)}</div></div>
+      </div>
+      <div style="margin-top:8px">${optsHtml}</div>`;
+    div.appendChild(wrapper);
+  });
+}
+function adminCreatePoll(){
+  if(!current || current.role !== 'admin'){ alert('Только админ может создавать опросы'); return; }
+  const qStr = q('admin-poll-q').value.trim();
+  const optsStr = q('admin-poll-opt').value.trim();
+  const single = !!q('admin-poll-single').checked;
+  if(!qStr || !optsStr){ alert('Заполните вопрос и варианты'); return; }
+  const opts = optsStr.split(';').map((s,i)=>({ id: 'o'+Date.now()+i, text: s.trim() })).filter(x=>x.text);
+  if(opts.length<2){ alert('Нужно минимум 2 варианта'); return; }
+  const p = { id:'p'+Date.now(), q: qStr, opts, votes: {}, singleChoice: !!single, ts: Date.now() };
+  polls.unshift(p);
+  saveAll(); q('admin-poll-q').value=''; q('admin-poll-opt').value=''; q('admin-poll-single').checked=false;
+  renderPollsList(); renderAllHome(); toast('Опрос создан');
+}
+function votePoll(pollId, optId){
+  if(!current || current.role === 'admin' || current.role === 'owner'){ alert('Войдите как пользователь, чтобы голосовать'); return; }
+  const p = polls.find(x=>x.id===pollId);
+  if(!p) return;
+  p.votes = p.votes || {};
+  if(p.singleChoice){
+    if(p.votes[current.email]){ alert('Вы уже голосовали'); return; }
+    p.votes[current.email] = optId;
+  } else {
+    const arr = p.votes[current.email] || [];
+    if(!Array.isArray(arr)) p.votes[current.email] = [];
+    if(p.votes[current.email].includes(optId)){ p.votes[current.email] = p.votes[current.email].filter(x=>x!==optId); }
+    else p.votes[current.email].push(optId);
+  }
+  saveAll(); renderPollsList(); renderAllHome(); toast('Голос принят');
+}
+function toggleVotePoll(pollId, optId){ votePoll(pollId, optId); }
+
+/* Tickets/chat */
+function sendFeedback(){
+  if(!current || current.role === 'admin' || current.role === 'owner'){ alert('Войдите как пользователь'); return; }
+  const subj = q('fb-subj').value.trim();
+  const text = q('fb-text').value.trim();
+  const cat = q('fb-cat').value;
+  if(!subj || !text || !cat){ alert('Заполните тему, категорию и сообщение'); return; }
+  const last = current.lastTicketAt || 0;
+  if(Date.now() - last < COOLDOWN_NEW_TICKET){ const minutes = Math.ceil((COOLDOWN_NEW_TICKET - (Date.now() - last))/60000); alert('Подождите ещё '+minutes+' мин. перед созданием нового обращения'); return; }
+  const chat = { id:'c'+Date.now(), userEmail: current.email, fio: current.fio, subject: subj, category: cat, messages: [{ from:'user', text, ts: Date.now() }], ts: Date.now(), unreadForAdmin:true, status:'open', adminTyping:false, lastUserMsgAt: Date.now(), userTyping:false };
+  chats.unshift(chat);
+  current.lastTicketAt = Date.now();
+  const ui = users.findIndex(u=>u.email === current.email);
+  if(ui>=0){ users[ui] = current; }
+  // auto-reply
+  chat.messages.push({ from:'admin', text:'Спасибо за обращение, вам ответит первый освободившийся администратор.', ts: Date.now() });
+  saveAll();
+  q('fb-subj').value=''; q('fb-text').value=''; q('fb-cat').value='';
+  renderMyChats(); renderAdminChatsList(); toast('Обращение отправлено. Админ получит уведомление');
+}
+
+function renderMyChats(){
+  const div = q('my-chats'); div.innerHTML = '';
+  if(!current || current.role === 'admin' || current.role === 'owner'){ div.innerHTML = '<div class="small muted">Войдите как пользователь</div>'; return; }
+  const my = chats.filter(c=>c.userEmail === current.email).sort((a,b)=> b.ts - a.ts);
+  if(my.length===0){ div.innerHTML = '<div class="small muted">Вы не отправляли обращений</div>'; return; }
+  my.forEach(c=>{
+    const el = document.createElement('div'); el.className='task';
+    let lastMsg = c.messages[c.messages.length-1];
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-weight:700">${c.subject} ${c.status==='closed' ? '<span class="small-muted"> (закрыто)</span>':''}</div>
+        <div class="small-muted">${lastMsg ? (lastMsg.from === 'user' ? 'Вы: ' : 'Админ: ') + lastMsg.text : ''}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="small-muted">${fmtDate(c.ts)}</div>
+        <div style="margin-top:8px"><button class="btn small" onclick="openMyChat('${c.id}')">Открыть</button></div>
+      </div>
+    </div>`;
+    div.appendChild(el);
+  });
+}
+
+function openMyChat(chatId){
+  const c = chats.find(x=>x.id === chatId);
+  if(!c) return;
+  const box = document.createElement('div'); box.className='task';
+  box.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+    <div><strong>${c.subject}</strong><div class="small-muted">${c.fio} — ${c.userEmail}</div></div>
+    <div class="small-muted">${fmtDate(c.ts)}</div>
+  </div>
+  <div style="margin-top:10px" class="chat-box" id="tmp-chat-box-${c.id}"></div>
+  <div style="display:flex;gap:8px;margin-top:8px">
+    <input id="tmp-reply-${c.id}" class="input" placeholder="Ваше сообщение">
+    <button class="btn" onclick="sendUserReply('${c.id}')">Отправить</button>
+    <button class="btn ghost" onclick="renderMyChats()">Закрыть</button>
+  </div>`;
+  q('my-chats').innerHTML = '';
+  q('my-chats').appendChild(box);
+  renderChatMessagesToElem(c, q('tmp-chat-box-'+c.id));
+  if(c.adminTyping) {
+    const indicator = document.createElement('div'); indicator.className='small-muted'; indicator.innerText = 'Администратор набирает сообщение...'; q('tmp-chat-box-'+c.id).appendChild(indicator);
+  }
+  const chatElem = q('tmp-chat-box-'+c.id);
+  if(chatElem) chatElem.scrollTop = chatElem.scrollHeight;
+
+  if(chatElem){
+    if(chatElem._typingInterval) clearInterval(chatElem._typingInterval);
+    chatElem._typingInterval = setInterval(()=>{
+      const fresh = chats.find(x=>x.id===c.id);
+      if(!fresh) return;
+      const existing = chatElem.querySelector('.admin-typing-indicator');
+      if(fresh.adminTyping){
+        if(!existing){ const ind = document.createElement('div'); ind.className='small-muted admin-typing-indicator'; ind.innerText='Администратор набирает сообщение...'; chatElem.appendChild(ind); chatElem.scrollTop = chatElem.scrollHeight; }
+      } else { if(existing) existing.remove(); }
+    }, 800);
+  }
+
+  const inp = q('tmp-reply-'+c.id);
+  if(inp){
+    inp.oninput = () => {
+      c.userTyping = true;
+      c.lastUserMsgAt = Date.now();
+      saveAll();
+      if(c.userTypingTimer) clearTimeout(c.userTypingTimer);
+      c.userTypingTimer = setTimeout(()=>{ c.userTyping = false; delete c.userTypingTimer; saveAll(); renderAdminChatsList(); }, 3000);
+    };
+  }
+}
+
+function renderChatMessagesToElem(c, elem){
+  elem.innerHTML = '';
+  c.messages.forEach(m=>{
+    const mdiv = document.createElement('div'); mdiv.className='msg ' + (m.from === 'user' ? 'user' : 'admin');
+    mdiv.innerHTML = `<div style="font-size:13px">${m.text}</div><div class="small-muted" style="margin-top:6px">${fmtDate(m.ts)}</div>`;
+    elem.appendChild(mdiv);
+  });
+  elem.scrollTop = elem.scrollHeight;
+}
+
+function sendUserReply(chatId){
+  const input = q('tmp-reply-'+chatId);
+  if(!input) return;
+  const text = input.value.trim();
+  if(!text){ alert('Пустое сообщение'); return; }
+  const c = chats.find(x=>x.id === chatId);
+  if(!c) return;
+  if(c.status === 'closed'){ alert('Тикет закрыт, нельзя отправлять сообщения'); return; }
+  const last = c.lastUserMsgAt || 0;
+  if(Date.now() - last < COOLDOWN_USER_MSG){ alert('Подождите 10 секунд перед новым сообщением'); return; }
+  c.messages.push({ from:'user', text, ts: Date.now() });
+  c.lastUserMsgAt = Date.now();
+  c.unreadForAdmin = true;
+  saveAll();
+  renderChatMessagesToElem(c, q('tmp-chat-box-'+c.id));
+  input.value = '';
+  renderAdminChatsList();
+  toast('Сообщение отправлено');
+}
+
+/* Admin chat list */
+function renderAdminChatsList(){
+  const div = q('admin-chats-list'); div.innerHTML = '';
+  const search = (q('admin-chat-search') && q('admin-chat-search').value.trim().toLowerCase()) || '';
+  const catFilter = (q('admin-chat-filter-cat') && q('admin-chat-filter-cat').value) || 'all';
+  const statusFilter = (q('admin-chat-filter-status') && q('admin-chat-filter-status').value) || 'all';
+  chats.filter(c => c.status!=='closed').forEach((c,i)=>{
+    if(search && !((c.subject||'').toLowerCase().includes(search) || (c.fio||'').toLowerCase().includes(search))) return;
+    if(catFilter !== 'all' && c.category !== catFilter) return;
+    if(statusFilter !== 'all' && c.status !== statusFilter) return;
+    const unread = c.unreadForAdmin ? ' • новое' : '';
+    const typingFlag = c.userTyping ? ' (пользователь набирает...)' : '';
+    const adminTypingFlag = c.adminTyping ? ' (Вы: печатает...)' : '';
+    const el = document.createElement('div'); el.className='task';
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <div><strong>${c.subject}</strong><div class="small-muted">${c.fio} — ${c.userEmail} (${categoryLabel(c.category)})${unread}${typingFlag}${adminTypingFlag}</div></div>
+      <div style="margin-left:8px"><button class="btn small" onclick="openAdminChat('${c.id}')">Открыть</button></div>
+    </div>`;
+    div.appendChild(el);
+  });
+}
+function categoryLabel(code){ if(code === 'tech') return 'Техническая проблема'; if(code === 'task') return 'Вопрос по заданиям'; return 'Общее'; }
+
+function openAdminChat(chatId){
+  const c = chats.find(x=>x.id === chatId);
+  if(!c) return;
+  q('admin-chat-box').innerHTML = '';
+  renderChatMessagesToElem(c, q('admin-chat-box'));
+  q('admin-chat-box').dataset.selected = chatId;
+  window.currentChatId = chatId;
+  c.unreadForAdmin = false;
+  saveAll();
+  renderAdminChatsList();
+
+  if(current && current.role === 'admin'){
+    q('admin-reply').disabled = false;
+    q('btn-admin-reply').disabled = false;
+    q('btn-admin-close-ticket').disabled = false;
+
+    q('admin-typing-indicator').style.display = c.adminTyping ? 'block' : 'none';
+
+    q('admin-reply').setAttribute('autocomplete','off');
+    q('admin-reply').value = q('admin-reply').value || '';
+
+    q('admin-reply').onfocus = () => {
+      c.adminTyping = true; saveAll(); renderAdminChatsList(); q('admin-typing-indicator').style.display='block';
+      if(adminTypingTimers[c.id]) clearTimeout(adminTypingTimers[c.id]);
+      adminTypingTimers[c.id] = setTimeout(()=>{ c.adminTyping = false; saveAll(); renderAdminChatsList(); q('admin-typing-indicator').style.display='none'; delete adminTypingTimers[c.id]; }, 3000);
+    };
+    q('admin-reply').onblur = () => {
+      c.adminTyping = false; saveAll(); renderAdminChatsList(); q('admin-typing-indicator').style.display='none';
+      if(adminTypingTimers[c.id]){ clearTimeout(adminTypingTimers[c.id]); delete adminTypingTimers[c.id]; }
+    };
+    q('admin-reply').oninput = () => {
+      c.adminTyping = true; saveAll(); q('admin-typing-indicator').style.display='block'; renderAdminChatsList();
+      if(adminTypingTimers[c.id]) clearTimeout(adminTypingTimers[c.id]);
+      adminTypingTimers[c.id] = setTimeout(()=>{ c.adminTyping = false; saveAll(); renderAdminChatsList(); q('admin-typing-indicator').style.display='none'; delete adminTypingTimers[c.id]; }, 3000);
+    };
+  } else {
+    q('admin-reply').disabled = true;
+    q('btn-admin-reply').disabled = true;
+    q('btn-admin-close-ticket').disabled = true;
+    q('admin-typing-indicator').style.display='none';
+  }
+}
+
+/* adminSendReply */
+function adminSendReply(){
+  if(!current || current.role !== 'admin'){ alert('Только админ может отвечать'); return; }
+  const chatId = q('admin-chat-box').dataset.selected;
+  const txt = q('admin-reply').value.trim();
+  if(!chatId || !txt){ alert('Выберите чат и напишите сообщение'); return; }
+  const c = chats.find(x=>x.id === chatId);
+  if(!c) return;
+  if(c.status === 'closed'){ alert('Тикет закрыт'); return; }
+  c.messages.push({ from:'admin', text: txt, ts: Date.now() });
+  c.adminTyping = false;
+  c.unreadForAdmin = false;
+  saveAll();
+  renderChatMessagesToElem(c, q('admin-chat-box'));
+  q('admin-reply').value = '';
+  renderAdminChatsList();
+  toast('Ответ отправлен');
+  if(adminTypingTimers[c.id]){ clearTimeout(adminTypingTimers[c.id]); delete adminTypingTimers[c.id]; q('admin-typing-indicator').style.display='none'; }
+}
+
+function adminCloseTicket(){
+  if(!current || current.role !== 'admin'){ alert('Только админ'); return; }
+  const chatId = window.currentChatId || (q('admin-chat-box') && q('admin-chat-box').dataset && q('admin-chat-box').dataset.selected);
+  if(!chatId){ alert('Нет выбранного тикета'); return; }
+  const ticket = chats.find(c=>c.id===chatId);
+  if(ticket){ ticket.status = 'closed'; saveAll(); renderAdminChatsList(); if(q('admin-chat-box')){ q('admin-chat-box').innerHTML=''; delete q('admin-chat-box').dataset.selected; } window.currentChatId=null; toast('Тикет закрыт'); }
+}
+
+
+
+/* owner: set admin pass */
+function ownerSetAdminPass(){
+  if(!current || current.role !== 'owner'){ alert('Только владелец'); return; }
+  const val = q('owner-new-admin-pass').value.trim();
+  if(!val){ alert('Введите новый пароль для admin'); return; }
+  const adminUser = users.find(u=>u.email === ADMIN_LOGIN && u.role === 'admin');
+  if(adminUser){ adminUser.pass = val; ADMIN_PASS = val; saveAll(); toast('Пароль admin изменён'); q('owner-new-admin-pass').value=''; }
+  else { alert('Не найден admin в users'); }
+}
+
+/* CSV export */
+function exportCSV(){
+  if(!current || !(current.role === 'admin' || current.role === 'owner')){ alert('Только админ/владелец'); return; }
+  let csv = '';
+  function addSection(title, headers, rows){
+    csv += `# ${title}\n`;
+    csv += headers.join(',') + '\n';
+    rows.forEach(r => {
+      csv += headers.map(h => {
+        let v = r[h] !== undefined ? String(r[h]) : '';
+        if(v.includes(',') || v.includes('"') || v.includes('\n')) v = `"${v.replace(/"/g,'""')}"`;
+        return v;
+      }).join(',') + '\n';
+    });
+    csv += '\n';
+  }
+  addSection('users', ['email','fio','role','points','created'], users.map(u=>({ email:u.email, fio:u.fio, role:u.role || 'user', points: u.points || 0, created: u.created || '' })));
+  addSection('tasks', ['id','title','points','type','limit','created'], tasks.map(t=>({ id:t.id, title:t.title, points:t.points, type:t.type, limit:t.limit, created:t.created || '' })));
+  addSection('chats', ['id','userEmail','subject','category','status','ts','messagesCount'], chats.map(c=>({ id:c.id, userEmail:c.userEmail, subject:c.subject, category:c.category, status:c.status, ts:c.ts, messagesCount: (c.messages||[]).length })));
+  addSection('polls', ['id','q','singleChoice','optionsCount','votesCount'], polls.map(p=>({ id:p.id, q:p.q, singleChoice: p.singleChoice, optionsCount: (p.opts||[]).length, votesCount: Object.keys(p.votes||{}).length })));
+  addSection('news', ['id','title','body','ts'], news.map(n=>({ id:n.id, title:n.title, body:n.body, ts:n.ts })));
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'sv_report_'+Date.now()+'.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast('CSV выгружен');
+}
+
+/* Dashboard */
+let dashChartInstance = null;
+function renderDash(){
+  const days = 7;
+  const labels = [];
+  const now = new Date();
+  for(let i=days-1;i>=0;i--){
+    const d = new Date(now.getTime() - i*24*3600*1000);
+    labels.push(d.toLocaleDateString());
+  }
+  const tasksCounts = labels.map(()=>0);
+  const usersCounts = labels.map(()=>0);
+  const chatsCounts = labels.map(()=>0);
+  const startTs = Date.now() - (days-1)*24*3600*1000;
+  users.forEach(u=>{
+    (u.history||[]).forEach(h=>{
+      if(h.ts >= startTs){
+        const dayIndex = Math.floor((h.ts - startTs)/(24*3600*1000));
+        if(dayIndex>=0 && dayIndex < days) tasksCounts[dayIndex]++;
+      }
+    });
+    if(u.created && u.created >= startTs){
+      const dayIndex = Math.floor((u.created - startTs)/(24*3600*1000));
+      if(dayIndex>=0 && dayIndex < days) usersCounts[dayIndex]++;
+    }
+  });
+  chats.forEach(c=>{
+    if(c.ts >= startTs){
+      const dayIndex = Math.floor((c.ts - startTs)/(24*3600*1000));
+      if(dayIndex>=0 && dayIndex < days) chatsCounts[dayIndex]++;
+    }
+  });
+  const ctx = q('dash-chart').getContext('2d');
+  if(dashChartInstance) dashChartInstance.destroy();
+  dashChartInstance = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        { label:'Заданий подтверждено', data: tasksCounts, backgroundColor:'rgba(62,95,138,0.8)' },
+        { label:'Новых пользователей', data: usersCounts, backgroundColor:'rgba(16,185,129,0.8)' },
+        { label:'Новых обращений', data: chatsCounts, backgroundColor:'rgba(255,193,7,0.9)' }
+      ]
+    },
+    options:{ responsive:true, scales:{ y: { beginAtZero:true } } }
+  });
+}
+
+/* small previews for home */
+function renderAllHome(){ renderNewsPreviewForHome(); renderPollsPreviewForHome(); renderTasks(); renderMyTasks(); }
+function renderNewsPreviewForHome(){ const div = q('home-news-preview'); const latest = news.slice(0,2); if(!div) return; if(latest.length===0){ div.innerHTML = ''; return; } let html = `<div style="font-weight:700">Последние новости</div><div class="small-muted" style="margin-top:6px">Последние объявления</div><div style="margin-top:8px">`; latest.forEach(n=> html += `<div class="news-item"><strong>${n.title}</strong><div class="small-muted">${n.body}</div></div>`); html += `</div><div style="margin-top:8px"><button class="btn small" onclick="(function(){ hideAllPages(); show(q('page-news')); renderNewsList(); })()">Все новости</button></div>`; div.innerHTML = html; }
+function renderPollsPreviewForHome(){}
+
+/* expose globals used inline */
+window.takeTask = takeTask;
+window.markDone = markDone;
+window.openProfile = openProfile;
+window.approvePending = approvePending;
+window.rejectPending = rejectPending;
+window.approveAvatar = approveAvatar;
+window.rejectAvatar = rejectAvatar;
+window.adminDeleteUser = adminDeleteUser;
+window.adminAddPoints = adminAddPoints;
+window.adminRemovePoints = adminRemovePoints;
+window.adminApproveTask = adminApproveTask;
+window.adminRejectTask = adminRejectTask;
+window.adminShopUpdate = adminShopUpdate;
+window.adminShopDelete = adminShopDelete;
+window.openMyChat = openMyChat;
+window.openAdminChat = openAdminChat;
+window.votePoll = votePoll;
+window.toggleVotePoll = toggleVotePoll;
+
+/* save current user on unload */
+window.addEventListener('beforeunload', ()=>{
+  if(current && !(['admin','owner'].includes(current.role))){
+    const idx = users.findIndex(u=>u.email === current.email);
+    if(idx>=0){ users[idx] = current; localStorage.setItem(SK_USERS, JSON.stringify(users)); }
+  }
+});
+
+/* profile/shop/history renderers */
+function renderShopList(){
+  const div = q('shop-list'); if(!div) return; div.innerHTML = '';
+  shop.forEach(s=>{
+    const el = document.createElement('div'); el.className='task';
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <div><b>${s.name}</b><div class="small-muted">Цена: ${s.price} б.</div></div>
+      <div><div class="small-muted">—</div></div>
+    </div>`;
+    div.appendChild(el);
+  });
+}
+function renderProfilePurchases(){
+  if(!q('profile-purchases')) return;
+  if(!current || current.role === 'admin' || current.role === 'owner'){ q('profile-purchases').innerHTML = ''; return; }
+  const now = Date.now(); const threeDays = 3*24*3600*1000;
+  const active = (current.purchases||[]).filter(p=> (now - p.ts) <= threeDays );
+  const div = q('profile-purchases'); div.innerHTML = '';
+  if(active.length===0){ div.innerHTML = '<div class="small muted">Нет активных поощрений</div>'; return; }
+  active.forEach(p=>{
+    const el = document.createElement('div'); el.className='task';
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <div><b>${p.name}</b><div class="small-muted">Куплен: ${fmtDate(p.ts)}</div></div>
+    </div>`;
+    div.appendChild(el);
+  });
+}
+function renderProfileHistory(){
+  const div = q('profile-history'); if(!div) return;
+  if(!current || current.role === 'admin' || current.role === 'owner'){ div.innerHTML = '<div class="small muted">Войдите как пользователь</div>'; return; }
+  const now = Date.now(); const maxAge = TASK_HISTORY_DAYS * 24*3600*1000;
+  const hist = (current.history || []).filter(h => (now - h.ts) <= maxAge).sort((a,b)=> b.ts - a.ts);
+  if(hist.length===0){ div.innerHTML = '<div class="small muted">Нет истории</div>'; return; }
+  div.innerHTML = '';
+  hist.forEach(h=>{
+    const el = document.createElement('div'); el.className='task';
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <div><b>${h.title}</b><div class="small-muted">${h.points} б. — ${fmtDate(h.ts)}</div></div>
+    </div>`;
+    div.appendChild(el);
+  });
+}
+
+/* side widgets */
+function renderSideWidgets(){ renderSideRating(); renderShopList(); renderNewsList(); renderPollsList(); renderMyChats(); renderProfilePurchases(); renderProfileHistory(); }
+function renderSideRating(){
+  const div = q('side-rating'); if(!div) return; div.innerHTML = '';
+  const sorted = [...users].filter(u=>u.role !== 'admin' && u.role !== 'owner').sort((a,b)=> (b.points||0) - (a.points||0)).slice(0,5);
+  if(sorted.length===0){ div.innerHTML = '<div class="small muted">Нет участников</div>'; return; }
+  sorted.forEach(u=>{
+    const el = document.createElement('div'); el.className='small muted'; el.innerHTML = `<strong>${u.fio}</strong> — ${u.points||0} б.`; div.appendChild(el);
+  });
+}
+
+/* interval for admin chat updates (typing) */
+setInterval(()=>{
+  if(current && (current.role === 'admin' || current.role === 'owner')){
+    renderAdminChatsList();
+    const chatId = q('admin-chat-box') && q('admin-chat-box').dataset.selected;
+    if(chatId){
+      const c = chats.find(x=>x.id===chatId);
+      if(c){ q('admin-typing-indicator').style.display = c.adminTyping ? 'block' : 'none'; }
+    }
+  }
+}, 800);
+
+/* initial render */
+renderTasks(); renderMyTasks(); renderAdminOverview(); renderShopList(); renderProfilePurchases(); renderSideWidgets(); renderMyChats(); renderNewsList(); renderPollsList(); renderAllHome(); renderDash();
+
+/* open profile helper */
+function openProfile(){
+  if(!current || current.role === 'admin' || current.role === 'owner') return;
+  hideAllPages(); show(q('page-profile'));
+  q('profile-name').innerText = current.fio;
+  q('profile-email').innerText = current.email;
+  q('profile-points').innerText = current.points || 0;
+  q('profile-avatar').src = current.avatar || current.pendingAvatar || 'https://via.placeholder.com/72';
+  renderShopList(); renderProfilePurchases(); renderProfileHistory();
+}
+
+/* rating table */
+function renderRatingTable(){
+  const div = q('rating-table'); if(!div) return;
+  const sorted = [...users].filter(u=>u.role!=='admin' && u.role!=='owner').sort((a,b)=> (b.points||0) - (a.points||0)).slice(0,10);
+  if(sorted.length===0){ div.innerHTML = '<div class="small muted">Нет участников</div>'; return; }
+  let html = '<table class="table"><thead><tr><th>#</th><th>ФИО</th><th>Баллы</th></tr></thead><tbody>';
+  sorted.forEach((u,i)=> html += `<tr><td>${i+1}</td><td>${u.fio}</td><td>${u.points||0}</td></tr>`);
+  html += '</tbody></table>';
+  div.innerHTML = html;
+}
+
+/* csv button hidden initially */
+showCsvButtonIfAllowed(null);
+
+
+// Emergency JS to force layout recalculation on mobile/devtools
+(function(){
+  function recalc(){
+    document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+    // remove side-open if present to avoid stuck state
+    if(window.innerWidth > 720 && document.body.classList.contains('side-open')){
+      document.body.classList.remove('side-open');
+    }
+  }
+  window.addEventListener('load', recalc);
+  window.addEventListener('resize', recalc);
+  // also run shortly after load (some emulators report wrong sizes initially)
+  setTimeout(recalc, 300);
+})();
+
+</script>
+</body>
+</html>
